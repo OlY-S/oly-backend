@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { chatWithBot, generateRoadmap } from '../controllers/aiController.js';
+
 const router = express.Router();
-const aiController = require('../controllers/aiController');
 
-router.post('/chat', aiController.chatWithBot);
-router.post('/roadmap', aiController.generateRoadmap);
+router.post('/chat', chatWithBot);
+router.post('/roadmap', generateRoadmap);
 
-module.exports = router;
+export default router;

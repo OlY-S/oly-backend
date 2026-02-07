@@ -1,4 +1,4 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+import fetch from 'node-fetch';
 
 const getApiKey = () => {
     const key = process.env.GROQ_API_KEY;
@@ -11,7 +11,7 @@ const getApiKey = () => {
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-exports.generateRoadmap = async (req, res) => {
+export const generateRoadmap = async (req, res) => {
     try {
         const { userInput, userContext } = req.body;
         const apiKey = getApiKey();
@@ -83,7 +83,7 @@ exports.generateRoadmap = async (req, res) => {
     }
 };
 
-exports.chatWithBot = async (req, res) => {
+export const chatWithBot = async (req, res) => {
     try {
         const { query, context, userContext } = req.body;
         const apiKey = getApiKey();
