@@ -85,7 +85,7 @@ export const generateRoadmap = async (req, res) => {
 
 export const chatWithBot = async (req, res) => {
     try {
-        const { query, context, userContext } = req.body;
+        const { query, history, context, userContext } = req.body;
         const apiKey = getApiKey();
 
         let userDetails = "";
@@ -120,6 +120,12 @@ export const chatWithBot = async (req, res) => {
         Example: "You should get a [Scientific Calculator](/marketplace?search=Scientific%20Calculator)."
         Do NOT use this format for external things, only for our products.`;
 
+        // Map history to OpenAI format
+        const historyMessages = (history || []).map(msg => ({
+            role: msg.role === 'model' ? 'assistant' : 'user',
+            content: msg.content
+        }));
+
         const response = await fetch(GROQ_API_URL, {
             method: "POST",
             headers: {
@@ -129,6 +135,7 @@ export const chatWithBot = async (req, res) => {
             body: JSON.stringify({
                 messages: [
                     { role: "system", content: systemPrompt },
+                    ...historyMessages,
                     { role: "user", content: `<user_query>${query}</user_query>` }
                 ],
                 model: "llama-3.3-70b-versatile",
