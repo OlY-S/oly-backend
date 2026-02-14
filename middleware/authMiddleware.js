@@ -18,11 +18,13 @@ const verifyToken = async (req, res, next) => {
        return res.status(500).json({ message: 'Internal Server Error: Firebase Admin not initialized' });
     }
     const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log('Token verified successfully');
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Error verifying token:', error);
-    return res.status(403).json({ message: 'Forbidden: Invalid token' });
+    console.error('Error verifying token (message):', error.message);
+    if(error.code) console.error('Error code:', error.code);
+    return res.status(403).json({ message: 'Forbidden: Invalid token', error: error.message });
   }
 };
 
