@@ -15,27 +15,32 @@ const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
 try {
   if (fs.existsSync(serviceAccountPath)) {
     const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-    console.log('Firebase Admin initialized with serviceAccountKey.json');
+    if (admin.apps.length === 0) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('Firebase Admin initialized with serviceAccountKey.json');
+    }
   } else {
     // Fallback to environment variables if no service account file
-    // This requires setting FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
-    // in .env
-     if(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY){
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    if (projectId && clientEmail && privateKey) {
+      if (admin.apps.length === 0) {
         admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Replace escaped newlines if present
-                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            }),
+          credential: admin.credential.cert({
+            projectId: projectId,
+            clientEmail: clientEmail,
+            privateKey: privateKey.replace(/\\n/g, '\n'),
+          }),
         });
         console.log('Firebase Admin initialized with environment variables');
-     } else {
-         console.warn("Firebase Admin NOT initialized. Missing serviceAccountKey.json and environment variables.");
-     }
+      }
+    } else {
+      console.warn("Firebase Admin NOT initialized. Missing serviceAccountKey.json and environment variables.");
+    }
   }
 } catch (error) {
   console.error('Error initializing Firebase Admin:', error);
